@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, removeOrder } from './store';
 
 const Home: React.FC = () => {
     const orders = useSelector((state: RootState) => state.orders.orders);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        fetch('api/orders')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+                // Assuming you have an action creator addOrders to dispatch here
+                // dispatch(addOrders(data));
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, [dispatch]);
 
     const handleDelete = async (index: number) => {
         try {

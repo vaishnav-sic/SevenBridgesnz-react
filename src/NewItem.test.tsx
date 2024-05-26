@@ -7,9 +7,9 @@ import configureStore, { MockStoreEnhanced } from 'redux-mock-store';
 import NewItem from './NewItem';
 import { addOrder } from './store';
 import { Store, UnknownAction } from 'redux';
+import fetchMock from 'jest-fetch-mock';
 
 const mockStore = configureStore([]);
-const fetchMock = require('jest-fetch-mock');
 fetchMock.enableMocks();
 
 describe('NewItem Component', () => {
@@ -94,7 +94,18 @@ describe('NewItem Component', () => {
         // Wait for fetch to be called and dispatch to be triggered
         await waitFor(() => {
             expect(fetchMock).toHaveBeenCalledTimes(1);
-            expect(fetchMock).toHaveBeenCalledWith('api/orders', expect.any(Object));
+            expect(fetchMock).toHaveBeenCalledWith('api/orders', expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    description: 'Order description',
+                    quantity: 5
+                })
+            }));
             expect(store.dispatch).toHaveBeenCalledWith(addOrder(mockOrder));
         });
     });

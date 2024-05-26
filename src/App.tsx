@@ -7,25 +7,6 @@ import NewItem from './NewItem';
 import './App.css';
 
 const App: React.FC = () => {
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        fetch('api/orders')
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-                // Assuming you have an action creator addOrders to dispatch here
-                // dispatch(addOrders(data));
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-    }, [dispatch]);
 
     return (
         <Provider store={store}>
