@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addOrder } from './store';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './NewItem.css';
 
@@ -13,7 +12,7 @@ const NewItem: React.FC = () => {
     const history = useNavigate();
     const dispatch = useDispatch();
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
         const newOrder = {
@@ -22,10 +21,26 @@ const NewItem: React.FC = () => {
             description,
             quantity
         };
-        axios.post('api/orders', newOrder).then((response) => {
-            dispatch(addOrder(response.data));
-            history('/');
-        });
+
+        try {
+            const response = await fetch('api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newOrder)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                dispatch(addOrder(data));
+                history('/');
+            } else {
+                console.error('Failed to create order');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     const isFormValid =
@@ -37,7 +52,7 @@ const NewItem: React.FC = () => {
         quantity <= 20;
 
     return (
-        <form onSubmit={handleSubmit} className="new-item-form"> {}
+        <form onSubmit={handleSubmit} className="new-item-form">
             <div>
                 <label>
                     First Name (Optional):

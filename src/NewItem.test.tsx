@@ -1,24 +1,19 @@
-const React = require('react');
-const { render, screen, fireEvent, waitFor } = require('@testing-library/react');
-require('@testing-library/jest-dom/extend-expect');
-const { Provider } = require('react-redux');
-const { BrowserRouter: Router } = require('react-router-dom');
-const axios = require('axios');
-const MockAdapter = require('axios-mock-adapter');
-const configureStore = require('redux-mock-store').default;
-const NewItem = require('./NewItem').default;
-const { addOrder } = require('./store');
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
+import configureStore, { MockStoreEnhanced } from 'redux-mock-store';
+import NewItem from './NewItem';
+import { addOrder } from './store';
+import { Store, UnknownAction } from 'redux';
 
-// Define the state shape
-interface AppState {
-    orders: any[];
-}
-
-const mockStore = configureStore<AppState>([]);
-const mockAxios = new MockAdapter(axios);
+const mockStore = configureStore([]);
+const fetchMock = require('jest-fetch-mock');
+fetchMock.enableMocks();
 
 describe('NewItem Component', () => {
-    let store: MockStoreEnhanced<AppState>;
+    let store: MockStoreEnhanced<unknown, {}> | Store<unknown, UnknownAction, unknown>;
 
     beforeEach(() => {
         store = mockStore({
@@ -26,10 +21,7 @@ describe('NewItem Component', () => {
         });
 
         store.dispatch = jest.fn();
-    });
-
-    afterEach(() => {
-        mockAxios.reset();
+        fetchMock.resetMocks();
     });
 
     test('renders form fields correctly', () => {
@@ -80,7 +72,7 @@ describe('NewItem Component', () => {
             quantity: 5
         };
 
-        mockAxios.onPost('api/orders').reply(201, mockOrder);
+        fetchMock.mockResponseOnce(JSON.stringify(mockOrder), { status: 201 });
 
         render(
             <Provider store={store}>
@@ -99,13 +91,38 @@ describe('NewItem Component', () => {
         // Submit the form
         fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
 
-        // Wait for axios to be called and dispatch to be triggered
+        // Wait for fetch to be called and dispatch to be triggered
         await waitFor(() => {
-            expect(mockAxios.history.post.length).toBe(1);
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(fetchMock).toHaveBeenCalledWith('api/orders', expect.any(Object));
             expect(store.dispatch).toHaveBeenCalledWith(addOrder(mockOrder));
         });
+    });
 
-        // Log request data to debug if necessary
-        console.log(mockAxios.history.post[0].data);
+    test('handles form submission failure', async () => {
+        fetchMock.mockRejectOnce(new Error('Failed to create order'));
+
+        render(
+            <Provider store={store}>
+                <Router>
+                    <NewItem />
+                </Router>
+            </Provider>
+        );
+
+        // Fill out the form correctly
+        fireEvent.change(screen.getByLabelText(/First Name/i), { target: { value: 'John' } });
+        fireEvent.change(screen.getByLabelText(/Last Name/i), { target: { value: 'Doe' } });
+        fireEvent.change(screen.getByLabelText(/Order Description/i), { target: { value: 'Order description' } });
+        fireEvent.change(screen.getByLabelText(/Quantity/i), { target: { value: 5 } });
+
+        // Submit the form
+        fireEvent.click(screen.getByRole('button', { name: /Submit/i }));
+
+        // Wait for fetch to be called and check that dispatch was not called
+        await waitFor(() => {
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+            expect(store.dispatch).not.toHaveBeenCalled();
+        });
     });
 });

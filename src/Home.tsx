@@ -1,16 +1,23 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, removeOrder } from './store';
-import axios from 'axios';
 
 const Home: React.FC = () => {
     const orders = useSelector((state: RootState) => state.orders.orders);
     const dispatch = useDispatch();
 
-    const handleDelete = (index: number) => {
-        axios.delete(`api/orders/${index}`).then(() => {
-            dispatch(removeOrder(index));
-        });
+    const handleDelete = async (index: number) => {
+        try {
+            const response = await fetch(`api/orders/${index}`, { method: 'DELETE' });
+
+            if (response.ok) {
+                dispatch(removeOrder(index));
+            } else {
+                console.error('Failed to delete the order');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
