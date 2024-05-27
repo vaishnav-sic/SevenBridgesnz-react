@@ -1,6 +1,7 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface Order {
+export interface Order {  // Ensure Order type is exported
+    id: number;
     firstName: string;
     lastName: string;
     description: string;
@@ -26,7 +27,7 @@ const ordersSlice = createSlice({
             state.orders = action.payload;
         },
         removeOrder(state, action: PayloadAction<number>) {
-            state.orders.splice(action.payload, 1);
+            state.orders = state.orders.filter(order => order.id !== action.payload);
         }
     }
 });
@@ -41,4 +42,5 @@ const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+export { configureStore };
 export default store;

@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
 import { Provider, useDispatch } from 'react-redux';
 import store, { configureStore, RootState, AppDispatch } from './store'; // Assuming configureStore returns the correct type
-import Home from './Home';
-import NewItem from './NewItem';
+import Home from './pages/Home/Home';
+import NewItem from './pages/NewItem/NewItem';
 import './App.css';
 
 const App: React.FC = () => {

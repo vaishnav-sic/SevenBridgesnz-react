@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addOrder } from './store';
+import { addOrder } from '../../store';
 import { useNavigate } from 'react-router-dom';
 import './NewItem.css';
 

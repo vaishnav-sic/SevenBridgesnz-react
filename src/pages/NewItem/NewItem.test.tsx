@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 import configureStore, { MockStoreEnhanced } from 'redux-mock-store';
 import NewItem from './NewItem';
-import { addOrder } from './store';
+import { addOrder } from '../../store';
 import { Store, UnknownAction } from 'redux';
 import fetchMock from 'jest-fetch-mock';
 
