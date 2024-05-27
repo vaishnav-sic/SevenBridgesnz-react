@@ -1,6 +1,6 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Order {  // Ensure Order type is exported
+export interface Order { 
     id: number;
     firstName: string;
     lastName: string;

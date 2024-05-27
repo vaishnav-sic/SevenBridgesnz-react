@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
-import { Provider, useDispatch } from 'react-redux';
-import store, { configureStore, RootState, AppDispatch } from './store'; // Assuming configureStore returns the correct type
+import { Provider} from 'react-redux';
+import store from './store';
 import Home from './pages/Home/Home';
 import NewItem from './pages/NewItem/NewItem';
 import './App.css';
